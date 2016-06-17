@@ -6,7 +6,7 @@ services:
 
     php-fpm:
         build:
-            context: ./php-fpm
+            context: ./laradock/php-fpm
             dockerfile: Dockerfile-70
         volumes_from:
             - application
@@ -18,45 +18,45 @@ services:
 ### Laravel Application Code Container ######################
 
     application:
-        build: ./application
+        build: ./laradock/application
         volumes:
-            - ../:/var/www/laravel
+            - ./:/var/www/laravel
 
 ### Databases Data Container ################################
 
     data:
-        build: ./data
+        build: ./laradock/data
         volumes:
-            - /var/lib/mysql:/var/lib/mysql
-            - /var/lib/postgres:/var/lib/postgres
-            - /var/lib/mariadb:/var/lib/mariadb
-            - /var/lib/memcached:/var/lib/memcached
-            - /var/lib/redis:/data
-            - /var/lib/neo4j:/var/lib/neo4j/data
-            - /var/lib/mongo:/data/db
+            - ./laradock/container_data/mysql:/var/lib/mysql
+            - ./laradock/container_data/postgres:/var/lib/postgres
+            - ./laradock/container_data/mariadb:/var/lib/mariadb
+            - ./laradock/container_data/memcached:/var/lib/memcached
+            - ./laradock/container_data/redis:/data
+            - ./laradock/container_data/neo4j:/var/lib/neo4j/data
+            - ./laradock/container_data/mongo:/data/db
 
 ### Nginx Server Container ##################################
 
     nginx:
-        build: ./nginx
+        build: ./laradock/nginx
         volumes_from:
             - application
         volumes:
-            - ./logs/nginx/:/var/log/nginx
+            - ./laradock/logs/nginx/:/var/log/nginx
         ports:
-            - "80:80"
-            - "443:443"
+            - "80"
+            - "443"
         links:
             - php-fpm
 
 ### MySQL Container #########################################
 
     mysql:
-        build: ./mysql
+        build: ./laradock/mysql
         volumes_from:
             - data
         ports:
-            - "3306:3306"
+            - "3306"
         environment:
             MYSQL_DATABASE: homestead
             MYSQL_USER: homestead
@@ -66,11 +66,11 @@ services:
 ### PostgreSQL Container ####################################
 
     postgres:
-        build: ./postgres
+        build: ./laradock/postgres
         volumes_from:
             - data
         ports:
-            - "5432:5432"
+            - "5432"
         environment:
             POSTGRES_DB: homestead
             POSTGRES_USER: homestead
@@ -79,11 +79,11 @@ services:
 ### MariaDB Container #######################################
 
     mariadb:
-        build: ./mariadb
+        build: ./laradock/mariadb
         volumes_from:
             - data
         ports:
-            - "3306:3306"
+            - "3306"
         environment:
             MYSQL_DATABASE: homestead
             MYSQL_USER: homestead
@@ -93,10 +93,10 @@ services:
 ### Neo4j Container #########################################
 
     neo4j:
-        build: ./neo4j
+        build: ./laradock/neo4j
         ports:
-            - "7474:7474"
-            - "1337:1337"
+            - "7474"
+            - "1337"
         environment:
             - NEO4J_AUTH=homestead:secret
         volumes_from:
@@ -105,38 +105,38 @@ services:
 ### MongoDB Container #######################################
 
     mongo:
-        build: ./mongo
+        build: ./laradock/mongo
         ports:
-            - "27017:27017"
+            - "27017"
         volumes_from:
             - data
 
 ### Redis Container #########################################
 
     redis:
-        build: ./redis
+        build: ./laradock/redis
         volumes_from:
             - data
         ports:
-            - "6379:6379"
+            - "6379"
 
 ### Memcached Container #####################################
 
     memcached:
-        build: ./memcached
+        build: ./laradock/memcached
         volumes_from:
             - data
         ports:
-            - "11211:11211"
+            - "11211"
         links:
             - php-fpm
 
 ### Beanstalkd Container ####################################
 
     beanstalkd:
-        build: ./beanstalkd
+        build: ./laradock/beanstalkd
         ports:
-            - "11300:11300"
+            - "11300"
         privileged: true
         links:
             - php-fpm
@@ -144,16 +144,16 @@ services:
 ### Beanstalkd Console Container ############################
 
     beanstalkd-console:
-        build: ./beanstalkd-console
+        build: ./laradock/beanstalkd-console
         ports:
-            - "2080:2080"
+            - "2080"
         links:
             - beanstalkd
 
 ### Workspace Utilities Container ###########################
 
     workspace:
-        build: ./workspace
+        build: ./laradock/workspace
         volumes_from:
             - application
         tty: true
